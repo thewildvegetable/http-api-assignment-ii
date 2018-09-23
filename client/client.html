@@ -46,34 +46,38 @@
         case 400: //bad request
           content.innerHTML = `<b>Bad Request</b>`;
           break;
+        case 404: //not found
+          content.innerHTML = '<b>Resource Not Found</b>';
+          break;
         default: //any other status code
           content.innerHTML = `Error code not implemented by client.`;
           break;
       }
-      //parse response 
-      parseJSON(xhr, content);
+      //if any json sent back, parse it
+      if (xhr.response){
+          //parse response 
+          parseJSON(xhr, content);
+      }
     };
+
     //function to send our post request
     const sendPost = (e, nameForm) => {
       //grab the forms action
       const nameAction = nameForm.getAttribute('action');
       const nameMethod = nameForm.getAttribute('method');
       
-      //grab the form's name and age fields so we can check user input
+      //grab the form's name and age fields
       const nameField = nameForm.querySelector('#nameField');
       const ageField = nameForm.querySelector('#ageField');
       
-      //create a new Ajax request (remember this is asynchronous)
+      //create a new Ajax request
       const xhr = new XMLHttpRequest();
-      //set the method (POST) and url (action field from form)
       xhr.open(nameMethod, nameAction);
       
-      //set our request type
+      //set our request type and response type
       xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-      //set our requested response type in hopes of a JSON response
       xhr.setRequestHeader ('Accept', 'application/json');
       
-      //set our function to handle the response
       xhr.onload = () => handleResponse(xhr);
       
       //build our x-www-form-urlencoded format
@@ -87,15 +91,42 @@
       return false;
     };
 
+    const sendUsers = (e, userForm) => {
+        //grab the actions
+        const userAction = userForm.querySelector('#urlField').value;
+        const userMethod = userForm.querySelector('#methodSelect').value;
+        
+        //create a new Ajax request
+        const xhr = new XMLHttpRequest();
+        console.log(userMethod);
+        xhr.open(userMethod, userAction);
+        
+        //set our request type and response type
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        xhr.setRequestHeader ('Accept', 'application/json');
+      
+        xhr.onload = () => handleResponse(xhr);
+        
+        //send our request with the data
+        xhr.send();
+    
+        //prevent the browser's default action
+        e.preventDefault();
+        return false;
+    };
+
     const init = () => {
-      //grab form
+      //grab forms
       const nameForm = document.querySelector('#nameForm');
+      const userForm = document.querySelector('#userForm');
       
-      //create handler
+      //create handlers
       const addUser = (e) => sendPost(e, nameForm);
+      const getUsers = (e) => sendUsers(e, userForm);
       
-      //attach submit event
+      //attach submit events
       nameForm.addEventListener('submit', addUser);
+      userForm.addEventListener('submit', getUsers);
     };
 
     window.onload = init;
